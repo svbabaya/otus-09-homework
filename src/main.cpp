@@ -10,12 +10,13 @@
 #include <map>
 #include <vector>
 #include <chrono>
+#include <thread>
 
 const size_t TOPK = 10;
 
 using Counter = std::map<std::string, std::size_t>;
 
-std::string tolower(const std::string &str);
+std::string tolower(const std::string& str);
 
 void count_words(std::istream& stream, Counter&);
 
@@ -28,17 +29,36 @@ int main(int argc, char *argv[]) {
     }
 
     auto start = std::chrono::high_resolution_clock::now();
+
     Counter freq_dict;
+
+    // std::vector<Counter> counters;
+
+    std::vector<std::thread> thread_pool; 
+
     for (int i = 1; i < argc; ++i) {
         std::ifstream input{argv[i]};
         if (!input.is_open()) {
             std::cerr << "Failed to open file " << argv[i] << '\n';
             return EXIT_FAILURE;
         }
-        count_words(input, freq_dict);
+
+        thread_pool.emplace_back(count_words, std::ref(input), std::ref(freq_dict));
+        thread_pool[0].join();
+
+        // std::thread t(count_words, ref(input), ref(freq_dict));
+        // t.join();
+        // count_words(input, freq_dict);  
     }
 
+    // thread_pool[0].join();
+
+    // for (auto& t : thread_pool) {
+    //     t.join();
+    // } 
+
     print_topk(std::cout, freq_dict, TOPK);
+
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::cout << "Elapsed time is " << elapsed_ms.count() << " us\n";
