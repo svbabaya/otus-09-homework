@@ -30,10 +30,8 @@ int main(int argc, char *argv[]) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Counter freq_dict;
-
-    // std::vector<Counter> counters;
-
+    Counter freq_all_dict;
+    std::vector<Counter> counters;
     std::vector<std::thread> thread_pool; 
 
     for (int i = 1; i < argc; ++i) {
@@ -42,26 +40,23 @@ int main(int argc, char *argv[]) {
             std::cerr << "Failed to open file " << argv[i] << '\n';
             return EXIT_FAILURE;
         }
-
-        thread_pool.emplace_back(count_words, std::ref(input), std::ref(freq_dict));
-        thread_pool[0].join();
-
-        // std::thread t(count_words, ref(input), ref(freq_dict));
-        // t.join();
-        // count_words(input, freq_dict);  
+        thread_pool.emplace_back(count_words, input, std::ref(counters.emplace_back()));
     }
+    for (auto& t : thread_pool) {
+        t.join();
+    } 
 
-    // thread_pool[0].join();
+    freq_all_dict = sum_up_counters(counters);
 
-    // for (auto& t : thread_pool) {
-    //     t.join();
-    // } 
-
-    print_topk(std::cout, freq_dict, TOPK);
+    print_topk(std::cout, freq_all_dict, TOPK);
 
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::cout << "Elapsed time is " << elapsed_ms.count() << " us\n";
+}
+
+Counter sum_up_counters(std::vector<Counter> counters) {
+ return counters[0];
 }
 
 std::string tolower(const std::string &str) {
