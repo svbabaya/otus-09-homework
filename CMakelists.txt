@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.8)
-
 project(otus-cpp-basic-multithreading2 CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-add_executable(topk_words src/main.cpp)
+add_executable(topk_words
+                src/topk_words.cpp
+                )
 
 if (MSVC)
     target_compile_options(topk_words PUBLIC /W4)

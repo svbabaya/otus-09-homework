@@ -1,2 +1,2 @@
 ## otus-09-homework
-* main task: No
+* main task: Yes
